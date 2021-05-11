@@ -20,12 +20,12 @@ async def home(request: Request):
 
 @app.get("/{page_name}", response_class=HTMLResponse)
 async def page(request: Request, page_name: str):
-
     return templates.TemplateResponse(f"{page_name}",
                                       {
                                           "request": request,
                                           "service_parts": components.SERVICES_CARDS,
-                                          "services_widget": components.SERVICES_WIDGET}
+                                          "services_widget": components.SERVICES_WIDGET
+                                      }
                                       )
 
 

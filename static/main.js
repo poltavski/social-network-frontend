@@ -8,8 +8,3 @@ $(document).ready(function () {
 
 });
 
-function signUpForm() {
-    alert('click');
-        let formData = new FormData(document.querySelector('form'));
-        alert(formData);
-}

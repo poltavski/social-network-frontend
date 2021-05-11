@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quitter</title>
-    <link rel="stylesheet" href="./static/style.css">
+    <link rel="stylesheet" href="../static/style.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
         integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
@@ -13,7 +13,7 @@
 </head>
 
 <body>
-    <script src="{{ url_for('static', path='./js/auth.js') }}"></script>
+    <script src="../static/js/auth.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
@@ -90,27 +90,27 @@
               <h4>Sign Up</h4>
             </div>
             <div class="d-flex flex-column text-center">
-              <form name="signUp" action="http://127.0.0.1:8000/user/create-user" method="post">
+              <div id="signUp">
                 <div class="form-group">
-                  <input type="name" name="first_name" class="form-control" id="name-up" placeholder="Your name...">
+                  <input name="first_name" class="form-control" id="name-up" placeholder="Your name...">
                 </div>
                 <div class="form-group">
-                  <input type="surname" name="last_name" class="form-control" id="surname-up" placeholder="Your surname...">
+                  <input name="last_name" class="form-control" id="surname-up" placeholder="Your surname...">
                 </div>
                 <div class="form-group">
-                  <input type="username" name="username" class="form-control" id="username-up" placeholder="Pick username...">
+                  <input name="username" class="form-control" id="username-up" placeholder="Pick username...">
                 </div>
                 <div class="form-group">
-                  <input type="email" name="email" class="form-control" id="email-up"placeholder="Your email address...">
+                  <input type = "email" name="email" class="form-control" id="email-up" placeholder="Your email address...">
                 </div>
                 <div class="form-group">
                   <input type="password" name="password" class="form-control" id="password-up" placeholder="Your password...">
                 </div>
                   <div class="form-group">
-                  <input type="description" name="description" class="form-control" id="description-up" placeholder="Describe yourself...">
+                  <input name="description" class="form-control" id="description-up" placeholder="Describe yourself...">
                 </div>
-                <button type="submit" class="mt-2 btn btn-primary btn-block btn-round">Sign Up</button>
-              </form>
+                <button onclick="signUpForm()" class="mt-2 btn btn-primary btn-block btn-round">Sign Up</button>
+              </div>
             </div>
           </div>
         </div>
@@ -126,7 +126,7 @@
                         <div class="image mb-2"><img class="rounded-circle" width="150" src="https://picsum.photos/150/150" alt=""></div>
                         <div class="h5">Miracles Lee Cross</div>
                         <div >
-                            <span class="h7 text-muted">@UserName</span> 
+                            <span class="h7 text-muted">@UserName</span>
                             <button class="btn btn-primary btn-sm ml-3" type="button">Follow</button>
                         </div>
                         <div class="h7">Developer of web applications, JavaScript, PHP, Java, Python, Ruby, Java,
@@ -147,7 +147,7 @@
                 </div>
             </div>
 
-            
+
             <div class="col-md-6 gedf-main">
 
                 <!--- \\\\\\\UserPage -->
@@ -239,7 +239,7 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="text-muted h7 mb-2"> 
+                        <div class="text-muted h7 mb-2">
                             <a class="card-link" href="#"><i class="fa fa-clock-o"></i>10 min ago</a>
                         </div>
                         <p class="card-text">
@@ -252,7 +252,7 @@
                         <a href="#" class="card-link"><i class="fa fa-star"></i> Like</a>
                         <!--<a href="#" class="card-link"><i class="fa fa-comment"></i> Comment</a>
                             <a href="#" class="card-link"><i class="fa fa-mail-forward"></i> Share</a> -->
-                        
+
                     </div>
                 </div>
                 <!-- Post -->
@@ -286,7 +286,7 @@
 
                     </div>
                     <div class="card-body">
-                        <div class="text-muted h7 mb-2"> 
+                        <div class="text-muted h7 mb-2">
                             <a class="card-link" href="#"><i class="fa fa-clock-o"></i>10 min ago</a>
                         </div>
                         <img class="rounded float-left mr-3" src="https://picsum.photos/300/300"/>

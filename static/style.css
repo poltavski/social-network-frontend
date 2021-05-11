@@ -14,14 +14,13 @@ body {
     margin-top: 0.97rem;
 }
 
-@media (min-width: 576px){
+@media (min-width: 576px) {
   .modal-dialog {
-    max-width: 400px;
-
+      max-width: 400px;
+  }
     .modal-content {
       padding: 1rem;
     }
-  }
 }
 
 @media (min-width: 992px) {
@@ -41,11 +40,10 @@ body {
     display: none;
 }
 
-.modal-header {
-  .close {
+.close {
     margin-top: -1.5rem;
-  }
 }
+
 
 .form-title {
   margin: -2rem 0rem 2rem;

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,8 +13,7 @@
 </head>
 
 <body>
-
-    <script src="./static/main.js"></script>
+    <script src="{{ url_for('static', path='./js/auth.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
@@ -65,7 +63,7 @@
                 <div class="form-group">
                   <input type="password" class="form-control" id="password-in" placeholder="Your password...">
                 </div>
-                <button type="button" class="btn btn-primary btn-block btn-round">Login</button>
+                <button type="button" class="btn btn-primary btn-block btn-round" onclick="signUpForm()">Login</button>
               </form>
             </div>
             <div class="mt-3 signup-section text-center border-bottom-10">
@@ -92,23 +90,26 @@
               <h4>Sign Up</h4>
             </div>
             <div class="d-flex flex-column text-center">
-              <form>
+              <form name="signUp" action="http://127.0.0.1:8000/user/create-user" method="post">
                 <div class="form-group">
-                  <input type="name" class="form-control" id="name-up" placeholder="Your name...">
+                  <input type="name" name="first_name" class="form-control" id="name-up" placeholder="Your name...">
                 </div>
                 <div class="form-group">
-                  <input type="surname" class="form-control" id="surname-up" placeholder="Your surname...">
+                  <input type="surname" name="last_name" class="form-control" id="surname-up" placeholder="Your surname...">
                 </div>
                 <div class="form-group">
-                  <input type="username" class="form-control" id="username-up" placeholder="Pick username...">
+                  <input type="username" name="username" class="form-control" id="username-up" placeholder="Pick username...">
                 </div>
                 <div class="form-group">
-                  <input type="email" class="form-control" id="email-up"placeholder="Your email address...">
+                  <input type="email" name="email" class="form-control" id="email-up"placeholder="Your email address...">
                 </div>
                 <div class="form-group">
-                  <input type="password" class="form-control" id="password-up" placeholder="Your password...">
+                  <input type="password" name="password" class="form-control" id="password-up" placeholder="Your password...">
                 </div>
-                <button type="button" class="mt-2 btn btn-primary btn-block btn-round">Sign Up</button>
+                  <div class="form-group">
+                  <input type="description" name="description" class="form-control" id="description-up" placeholder="Describe yourself...">
+                </div>
+                <button type="submit" class="mt-2 btn btn-primary btn-block btn-round">Sign Up</button>
               </form>
             </div>
           </div>

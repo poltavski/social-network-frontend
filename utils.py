@@ -1,4 +1,5 @@
 from fastapi import Form
+from .settings import BACKEND_SERVER
 
 def auth_user(
     username: str = Form(...),
@@ -23,4 +24,7 @@ def auth_user(
 
     Returns:
     """
+    # Check user auth
+    url = BACKEND_SERVER + "/token"
+
     return True

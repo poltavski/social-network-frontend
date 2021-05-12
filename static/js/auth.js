@@ -1,5 +1,4 @@
 const backendBaseURL = "http://127.0.0.1:8000"
-const frontendBaseURL = "localhost/protected"
 
 $(document).ready(function () {
     alert("Ready")
@@ -48,14 +47,14 @@ async function postData(url = '', data = {}) {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        // credentials: 'same-origin', // include, *same-origin, omit
+        credentials: 'include', // include, *, omit
         headers: {
             'Content-Type': 'application/json',
             // 'access-control-expose-headers': 'Set-Cookie'
             // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         // redirect: 'follow', // manual, *follow, error
-        // referrerPolicy: 'no-referrer', // no-referrer, *client
+        // referrerPolicy: 'unsafe-url', // no-referrer, *client
         body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
     console.log(response.status);
@@ -99,17 +98,17 @@ function logInForm() {
     postData(url, logInBody)
         .then((data) => {
             console.log("Got data", data); // JSON data parsed by `response.json()` call
-            const response = fetch(frontendBaseURL, {
+            const response = fetch(backendBaseURL+"/protected", {
                 method: 'GET', // *GET, POST, PUT, DELETE, etc.
                 // mode: 'no-cors', // no-cors, *cors, same-origin
                 // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-                // credentials: 'same-origin', // include, *same-origin, omit
+                credentials: 'include', // include, *same-origin, omit
                 headers: {
                     'Content-Type': 'application/json'
                     // 'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 // redirect: 'follow', // manual, *follow, error
-                // referrerPolicy: 'no-referrer', // no-referrer, *client
+                // referrerPolicy: 'unsafe-url', // no-referrer, *client
             });
             console.log(response);
         })

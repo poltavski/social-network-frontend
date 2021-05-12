@@ -1,4 +1,5 @@
 const backendBaseURL = "http://127.0.0.1:8000"
+const frontendBaseURL = "http://127.0.0.1:8050"
 
 $(document).ready(function () {
     alert("Ready")
@@ -101,6 +102,20 @@ function logInForm() {
     };
     console.log(logInBody);
     const url = backendBaseURL + "/login";
+    const response_1 = fetch( frontendBaseURL+"/cookie-and-object", {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json',
+            // 'access-control-expose-headers': 'Set-Cookie'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        // redirect: 'follow', // manual, *follow, error
+        // referrerPolicy: 'unsafe-url', // no-referrer, *client
+            });
+    console.log(response_1)
 
     postData(url, logInBody)
         .then((data) => {

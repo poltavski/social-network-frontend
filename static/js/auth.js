@@ -142,3 +142,15 @@ function logInForm() {
         })
         .catch((e) => console.log(e));
 }
+
+async function logout() {
+    const response = await fetch(backendBaseURL + "/logout", {
+                method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
+                credentials: 'include', // include, *same-origin, omit
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie("csrf_access_token")
+                },
+            });
+    console.log(response)
+}

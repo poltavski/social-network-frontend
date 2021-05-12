@@ -1,4 +1,5 @@
 const backendBaseURL = "http://127.0.0.1:8000"
+const frontendBaseURL = "localhost/protected"
 
 $(document).ready(function () {
     alert("Ready")
@@ -45,11 +46,12 @@ async function postData(url = '', data = {}) {
 
     const response = await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        // mode: 'no-cors', // no-cors, *cors, same-origin
+        mode: 'cors', // no-cors, *cors, same-origin
         // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         // credentials: 'same-origin', // include, *same-origin, omit
         headers: {
-            'Content-Type': 'text/plain'
+            'Content-Type': 'application/json',
+            // 'access-control-expose-headers': 'Set-Cookie'
             // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         // redirect: 'follow', // manual, *follow, error
@@ -87,6 +89,29 @@ function signUpForm() {
 
 function logInForm() {
     alert("Login")
-    const form = document.forms.signIn;
-    console.log(form.elements)
+    const logInBody = {
+        "username":$("input[name=username]").val(),
+        "password": $("input[name=password]").val(),
+    };
+    console.log(logInBody);
+    const url = backendBaseURL + "/login";
+
+    postData(url, logInBody)
+        .then((data) => {
+            console.log("Got data", data); // JSON data parsed by `response.json()` call
+            const response = fetch(frontendBaseURL, {
+                method: 'GET', // *GET, POST, PUT, DELETE, etc.
+                // mode: 'no-cors', // no-cors, *cors, same-origin
+                // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                // credentials: 'same-origin', // include, *same-origin, omit
+                headers: {
+                    'Content-Type': 'application/json'
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                // redirect: 'follow', // manual, *follow, error
+                // referrerPolicy: 'no-referrer', // no-referrer, *client
+            });
+            console.log(response);
+        })
+        .catch((e) => console.log(e));
 }

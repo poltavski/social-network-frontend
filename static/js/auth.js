@@ -47,7 +47,7 @@ async function postData(url = '', data = {}) {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'include', // include, *, omit
+        credentials: 'same-origin', // include, *same-origin, omit
         headers: {
             'Content-Type': 'application/json',
             // 'access-control-expose-headers': 'Set-Cookie'
@@ -87,6 +87,12 @@ function signUpForm() {
 }
 
 function logInForm() {
+    function getCookie(name) {
+          let matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+          ));
+          return matches ? decodeURIComponent(matches[1]) : undefined;
+    }
     alert("Login")
     const logInBody = {
         "username":$("input[name=username]").val(),
@@ -97,20 +103,26 @@ function logInForm() {
 
     postData(url, logInBody)
         .then((data) => {
+            alert(getCookie("csrf_refresh_token"))
             console.log("Got data", data); // JSON data parsed by `response.json()` call
-            const response = fetch(backendBaseURL+"/protected", {
-                method: 'GET', // *GET, POST, PUT, DELETE, etc.
-                // mode: 'no-cors', // no-cors, *cors, same-origin
-                // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            const response_1 = fetch(backendBaseURL + "/refresh", {
+                method: 'Post', // *GET, POST, PUT, DELETE, etc.
                 credentials: 'include', // include, *same-origin, omit
                 headers: {
-                    'Content-Type': 'application/json'
-                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie("csrf_refresh_token")
                 },
-                // redirect: 'follow', // manual, *follow, error
-                // referrerPolicy: 'unsafe-url', // no-referrer, *client
             });
-            console.log(response);
+            console.log(response_1);
+
+            const response_2 = fetch(backendBaseURL + "/protected", {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+            console.log(response_2);
         })
         .catch((e) => console.log(e));
 }

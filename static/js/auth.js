@@ -51,10 +51,7 @@ function validateSignUpForm() {
 
 async function postData(url = '', data = {}) {
     // Default options are marked with *
-    console.log(data);
-    console.log(url);
-
-    const response = await fetch(url, {
+    return await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         credentials: 'include', // include, *same-origin, omit
@@ -62,10 +59,7 @@ async function postData(url = '', data = {}) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data) // body data type must match "Content-Type" header
-    });
-    console.log(response.status);
-    console.log(response);
-    return response; // parses JSON response into native JavaScript objects
+    }); // parses JSON response into native JavaScript objects
 }
 
 function signUpForm() {
@@ -113,14 +107,19 @@ function logInForm() {
 
 async function logout() {
     const response = await fetch(backendBaseURL + "/logout", {
-                method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
-                credentials: 'include', // include, *same-origin, omit
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCookie("csrf_access_token")
-                },
-            });
+        method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
+        credentials: 'include', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': getCookie("csrf_access_token")
+        },
+    });
     if (response.status === 200)
-           window.location.reload(false)
-    console.log(response)
-}
+        window.location.reload(false)
+    else if (response.status === 422)
+        postData(backendBaseURL+"/refresh", {})
+        .then((data) => {
+            if (data.status === 200)
+                logout()
+        })
+        .catch((e) => console.log(e));}

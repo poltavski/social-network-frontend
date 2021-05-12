@@ -86,13 +86,14 @@ function signUpForm() {
         .catch((e) => console.log(e));
 }
 
-function logInForm() {
-    function getCookie(name) {
+function getCookie(name) {
           let matches = document.cookie.match(new RegExp(
             "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
           ));
           return matches ? decodeURIComponent(matches[1]) : undefined;
-    }
+}
+
+function logInForm() {
     alert("Login")
     const logInBody = {
         "username":$("input[name=username]").val(),
@@ -103,26 +104,26 @@ function logInForm() {
 
     postData(url, logInBody)
         .then((data) => {
-            alert(getCookie("csrf_refresh_token"))
+            // alert(getCookie("csrf_refresh_token"))
             console.log("Got data", data); // JSON data parsed by `response.json()` call
-            const response_1 = fetch(backendBaseURL + "/refresh", {
-                method: 'Post', // *GET, POST, PUT, DELETE, etc.
-                credentials: 'include', // include, *same-origin, omit
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCookie("csrf_refresh_token")
-                },
-            });
-            console.log(response_1);
-
-            const response_2 = fetch(backendBaseURL + "/protected", {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-            console.log(response_2);
+            // const response_1 = fetch(backendBaseURL + "/refresh", {
+            //     method: 'Post', // *GET, POST, PUT, DELETE, etc.
+            //     credentials: 'include', // include, *same-origin, omit
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'X-CSRF-TOKEN': getCookie("csrf_refresh_token")
+            //     },
+            // });
+            // console.log(response_1);
+            //
+            // const response_2 = fetch(backendBaseURL + "/protected", {
+            //     method: 'GET',
+            //     credentials: 'include',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            // });
+            // console.log(response_2);
         })
         .catch((e) => console.log(e));
 }

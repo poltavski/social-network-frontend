@@ -9,6 +9,13 @@ $(document).ready(function () {
     })
 });
 
+function getCookie(name) {
+          let matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+          ));
+          return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
 function validateEmail(email) {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
@@ -50,20 +57,15 @@ async function postData(url = '', data = {}) {
     const response = await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
-        // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
+        credentials: 'include', // include, *same-origin, omit
         headers: {
             'Content-Type': 'application/json',
-            // 'access-control-expose-headers': 'Set-Cookie'
-            // 'Content-Type': 'application/x-www-form-urlencoded',
         },
-        // redirect: 'follow', // manual, *follow, error
-        // referrerPolicy: 'unsafe-url', // no-referrer, *client
         body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
     console.log(response.status);
     console.log(response);
-    return await response.json(); // parses JSON response into native JavaScript objects
+    return response; // parses JSON response into native JavaScript objects
 }
 
 function signUpForm() {
@@ -86,65 +88,25 @@ function signUpForm() {
     postData(url, signUpBody)
         .then((data) => {
             console.log("Got data", data); // JSON data parsed by `response.json()` call
+            if (data.status === 200)
+                window.location.reload(false)
         })
         .catch((e) => console.log(e));
 }
 
-function getCookie(name) {
-          let matches = document.cookie.match(new RegExp(
-            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-          ));
-          return matches ? decodeURIComponent(matches[1]) : undefined;
-}
-
 function logInForm() {
-    // alert("Login")
     const logInBody = {
         "username":$("input[name=username]").val(),
         "password": $("input[name=password]").val(),
     };
     console.log(logInBody);
     const url = backendBaseURL + "/login";
-    // const response_1 = fetch( frontendBaseURL+"/cookie-and-object", {
-    //             method: 'POST', // *GET, POST, PUT, DELETE, etc.
-    //     mode: 'cors', // no-cors, *cors, same-origin
-    //     // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-    //     credentials: 'same-origin', // include, *same-origin, omit
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         // 'access-control-expose-headers': 'Set-Cookie'
-    //         // 'Content-Type': 'application/x-www-form-urlencoded',
-    //     },
-    //     // redirect: 'follow', // manual, *follow, error
-    //     // referrerPolicy: 'unsafe-url', // no-referrer, *client
-    //         });
-    // console.log(response_1)
 
     postData(url, logInBody)
         .then((data) => {
-            if (data.status === 200){
+            if (data.status === 200)
                 window.location.reload(false)
-            }
-            // alert(getCookie("csrf_refresh_token"))
-            console.log("Got data", data); // JSON data parsed by `response.json()` call
-            // const response_1 = fetch(backendBaseURL + "/refresh", {
-            //     method: 'Post', // *GET, POST, PUT, DELETE, etc.
-            //     credentials: 'include', // include, *same-origin, omit
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'X-CSRF-TOKEN': getCookie("csrf_refresh_token")
-            //     },
-            // });
-            // console.log(response_1);
-            //
-            // const response_2 = fetch(backendBaseURL + "/protected", {
-            //     method: 'GET',
-            //     credentials: 'include',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            // });
-            // console.log(response_2);
+            console.log("Log In data", data); // JSON data parsed by `response.json()` call
         })
         .catch((e) => console.log(e));
 }

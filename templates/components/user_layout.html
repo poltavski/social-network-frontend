@@ -1,11 +1,16 @@
 {% macro displayUser(user_data) -%}
     <div class="card">
         <div class="card-body">
-            <div class="image mb-2"><img class="rounded-circle" width="150" src="http://127.0.0.1:8000/post/get-image?image_id={{ user_data.profile_image }}&is_profile=true" alt=""></div>
+            {% if user_data.profile_image is not none %}
+                {% set profile_image = user_data.profile_image %}
+            {% else %}
+                {% set profile_image = "" %}
+            {% endif %}
+            <div class="image mb-2"><img class="rounded-circle" width="150" src="http://127.0.0.1:8000/post/get-image?image_id={{ profile_image }}&is_profile=true" alt=""></div>
             <div class="h5">{{ user_data.first_name }} {{ user_data.last_name }}</div>
             <div >
                 <span class="h7 text-muted">@{{ user_data.username }}</span>
-                <button class="btn btn-primary btn-sm ml-3" type="button">Follow</button>
+<!--                <button class="btn btn-primary btn-sm ml-3" type="button">Follow</button>-->
             </div>
             <div class="h7">{{ user_data.description }}
             </div>

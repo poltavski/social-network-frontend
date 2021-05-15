@@ -43,7 +43,6 @@ def process_initial(request: Request):
         return JINJA_TEMPLATES.TemplateResponse("login.html", {"request": request, "data": data})
 
 
-
 def get_page_data(request: Request):
     templates = Jinja2Templates(directory="templates")
     data = {"page": "Home page"}

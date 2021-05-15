@@ -1,13 +1,6 @@
 const backendBaseURL = "http://127.0.0.1:8000"
 const frontendBaseURL = "http://127.0.0.1:8050"
 
-$(document).ready(function () {
-    alert("Ready")
-    $('#loginModal').modal('show');
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-    })
-});
 
 function getCookie(name) {
           let matches = document.cookie.match(new RegExp(
@@ -122,4 +115,5 @@ async function logout() {
             if (data.status === 200)
                 logout()
         })
-        .catch((e) => console.log(e));}
+        .catch((e) => console.log(e));
+}

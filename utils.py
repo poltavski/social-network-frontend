@@ -11,7 +11,8 @@ def process_initial(request: Request):
     is_authorized = False
     refresh_r = None
     if request.cookies:
-        r = requests.get(url=BACKEND_SERVER+"/post/get-feed", cookies=request.cookies)
+        r = requests.get(url=BACKEND_SERVER+"/user/get-current-user", cookies=request.cookies)
+        # r = requests.get(url=BACKEND_SERVER+"/post/get-feed", cookies=request.cookies)
         if r.status_code == 200:
             is_authorized = True
         if r.status_code == 422:
@@ -20,6 +21,9 @@ def process_initial(request: Request):
             refresh_r = requests.post(url=BACKEND_SERVER + "/refresh", cookies=request.cookies, headers=refresh_header)
             if refresh_r.status_code == 200:
                 is_authorized = True
+                r = requests.get(url=BACKEND_SERVER + "/user/get-current-user", cookies=request.cookies)
+                if r.status_code != 200:
+                    is_authorized = False
 
     if is_authorized:
         data = {"page": "Home page"}

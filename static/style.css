@@ -60,3 +60,7 @@ body {
 .signup-section {
   padding: 0.3rem 0rem;
 }
+
+.post-image {
+    max-width: 100%;
+}

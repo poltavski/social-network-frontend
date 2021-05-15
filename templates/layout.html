@@ -13,6 +13,7 @@
 </head>
 
 <body>
+    {% import './components/user_layout.html' as macroUserComponents %}
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
@@ -43,30 +44,7 @@
     <div class="container-fluid gedf-wrapper">
         <div class="row">
             <div class="col-md-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="image mb-2"><img class="rounded-circle" width="150" src="https://picsum.photos/150/150" alt=""></div>
-                        <div class="h5">Miracles Lee Cross</div>
-                        <div >
-                            <span class="h7 text-muted">@UserName</span>
-                            <button class="btn btn-primary btn-sm ml-3" type="button">Follow</button>
-                        </div>
-                        <div class="h7">Developer of web applications, JavaScript, PHP, Java, Python, Ruby, Java,
-                            Node.js,
-                            etc.
-                        </div>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <div class="h6 text-muted">Followers</div>
-                            <div class="h5">5 432</div>
-                        </li>
-                        <li class="list-group-item">
-                            <div class="h6 text-muted">Following</div>
-                            <div class="h5">6 789</div>
-                        </li>
-                    </ul>
-                </div>
+                {{ macroUserComponents.displayUser(user_data) }}
             </div>
 
 
@@ -131,7 +109,7 @@
                     </div>
                 </div>
                 <!-- UserPage -->
-                <div class="posts_layout">
+                <div class="posts-layout">
                 </div>
                 <!--- Post -->
 <!--                <div class="card gedf-card">-->

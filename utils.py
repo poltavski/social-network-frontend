@@ -2,6 +2,7 @@
 from settings import BACKEND_SERVER
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
+import json
 import requests
 
 JINJA_TEMPLATES = Jinja2Templates(directory="templates")
@@ -11,23 +12,24 @@ def process_initial(request: Request):
     is_authorized = False
     refresh_r = None
     if request.cookies:
-        r = requests.get(url=BACKEND_SERVER+"/user/get-current-user", cookies=request.cookies)
-        # r = requests.get(url=BACKEND_SERVER+"/post/get-feed", cookies=request.cookies)
-        if r.status_code == 200:
+        user_response = requests.get(url=BACKEND_SERVER+"/user/get-current-user", cookies=request.cookies)
+        # user_response = requests.get(url=BACKEND_SERVER+"/post/get-feed", cookies=request.cookies)
+        if user_response.status_code == 200:
             is_authorized = True
-        if r.status_code == 422:
+        if user_response.status_code == 422:
             # Signature expired
             refresh_header = {'X-CSRF-TOKEN': request.cookies["csrf_refresh_token"]}
             refresh_r = requests.post(url=BACKEND_SERVER + "/refresh", cookies=request.cookies, headers=refresh_header)
             if refresh_r.status_code == 200:
                 is_authorized = True
-                r = requests.get(url=BACKEND_SERVER + "/user/get-current-user", cookies=request.cookies)
-                if r.status_code != 200:
+                user_response = requests.get(url=BACKEND_SERVER + "/user/get-current-user", cookies=refresh_r.cookies)
+                if user_response.status_code != 200:
                     is_authorized = False
 
     if is_authorized:
         data = {"page": "Home page"}
-        html_response = JINJA_TEMPLATES.TemplateResponse("layout.html", {"request": request, "data": data})
+        user_data = json.loads(user_response.text)
+        html_response = JINJA_TEMPLATES.TemplateResponse("layout.html", {"request": request, "user_data": user_data, "data": data})
         if refresh_r:
             access_token_cookie = refresh_r.cookies.get("access_token_cookie")
             csrf_access_token = refresh_r.cookies.get("csrf_access_token")

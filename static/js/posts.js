@@ -13,21 +13,16 @@ async function getData(url = '') {
     }); // parses JSON response into native JavaScript objects
 }
 
-async function postDataImage(url = '', data = {}) {
-    // Default options are marked with *
-    console.log('data ', data);
-    return await fetch(url, {
+async function postDataImage(url, headers = new Headers(), bodyData = new FormData()) {
+    let requestOptions = {
         method: 'POST',
-        // headers: myHeaders,
-        body: data,
+        headers: headers,
+        body: bodyData,
         redirect: 'follow',
-        mode: 'cors', // no-cors, *cors, same-origin
-        credentials: 'include', // include, *same-origin, omit
-        // headers: {
-        //     'Content-Type': 'multipart/form-data',
-        // },
-        // body: JSON.stringify(data) // body data type must match "Content-Type" header
-    }); // parses JSON response into native JavaScript objects
+        credentials: 'include',
+    };
+
+    return await fetch(url, requestOptions)
 }
 
 function addPost(){
@@ -36,71 +31,40 @@ function addPost(){
     const text = activeDiv.find('.custom-text-input');
     const image = activeDiv.find('.custom-file-input');
 
-    console.log('activeDiv: ', activeDiv);
-    console.log('text ', text)
-    console.log('image ', image)
-    console.log('VALUES:')
-    console.log('text ', text.val())
-    console.log('image ', image.get(0).files[0])
-    // const postFile =$(addPostElem).closest('.custom-file-input');
-    // const postText =$(addPostElem).closest('.form-group');
-    // const postVisibility = $(addPostElem).closest('ul');
-    // console.log(postFile)
-    // console.log(postText)
-    // console.log(postVisibility)
-    // const url = backendBaseURL + '/post/change-likes?post_id=' + mainPostDiv.attr('id')
-    // let photo = document.getElementById("image-file").files[0];
-    // let formData = new FormData();
-    // formData.append("image", image.get(0).files[0]);
-    // for (var key of formData.entries()) {
-    //     console.log(key[0] + ', ' + key[1]);
-    // }
-    // const url = backendBaseURL + '/post/upload-image'
-    // postDataImage(url, formData)
-    //     .then((data) => console.log(data.text()))
-
-    // var settings = {
-    //     "url": "http://127.0.0.1:8000/post/upload-image",
-    //     "method": "POST",
-    //     "timeout": 0,
-    //     "headers": {
-    //         'X-CSRF-TOKEN': getCookie("csrf_access_token")
-    //     },
-    //     "processData": false,
-    //     "mimeType": "multipart/form-data",
-    //     "contentType": false,
-    //     "data": formData
-    // };
-    //
-    // $.ajax(settings).done(function (response) {
-    //     console.log(response);
-    //     response.text((uuidImg) => console.log(uuidImg));
-    // });
-
-    var myHeaders = new Headers();
+    let myHeaders = new Headers();
     myHeaders.append("X-CSRF-TOKEN", getCookie("csrf_access_token"));
 
-    var formdata = new FormData();
-    formdata.append("image", image.get(0).files[0]);
-    // formdata.append("is_profile", "true");
+    let formData = new FormData();
+    formData.append("image", image.get(0).files[0]);
 
-    var requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: formdata,
-        redirect: 'follow',
-        credentials: 'include',
-    };
 
-    fetch("http://127.0.0.1:8000/post/upload-image", requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
+    postDataImage("http://127.0.0.1:8000/post/upload-image", myHeaders, formData)
+        .then(response => response.json())
+        .then(imageID => {
+            console.log(imageID);
+            formData = {
+                "content": text.val(),
+                "visibility": "public",
+                "image_id": imageID,
+            };
+            postDataImage("http://127.0.0.1:8000/post/create-post", myHeaders, JSON.stringify(formData))
+                .then(response => response.json())
+                .then(post => {
+                    let posts_layout = $('.posts-layout')
+                    console.log(posts_layout)
+                    post.image_id
+                        ? posts_layout.prepend(getHtmlImagePost(post))
+                        : posts_layout.prepend(getHtmlPost(post))
+                })
+        })
         .catch(error => console.log('error', error));
 }
 //
 // post is result of response
 function getHtmlPost(post_data) {
     return `
+            ${post_data.editable ? 'editable' : 'NOT editable'}
+
              <div class="card gedf-card main-post-div" id="${post_data.id}">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
@@ -113,18 +77,28 @@ function getHtmlPost(post_data) {
                                     <div class="h7 text-muted" id="${post_data.user_id}">@${post_data.username}</div>
                                     </div>
                                 </div>
-                                <div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa fa-ellipsis-h"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                            <a class="dropdown-item" href="#"><i class="fa fa-edit mr-2"></i>Edit</a>
-                                            <a class="dropdown-item btn-outline-danger" href="#"><i class="fa fa-trash mr-2"></i>Delete</a>
+                                ${post_data.editable || post_data.removable ?
+                                    `<div>
+                                        <div class="dropdown">
+                                            <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fa fa-ellipsis-h"></i>
+                                            </button>
+                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
+                                                ${post_data.editable ?
+                                                    `<a class="dropdown-item" href="#"><i class="fa fa-edit mr-2"></i>Edit</a>`
+                                                    : ''
+                                                }
+                                                ${ post_data.removable ?
+                                                    `<a class="dropdown-item btn-outline-danger" href="#"><i class="fa fa-trash mr-2"></i>Delete</a>`
+                                                    : ''
+                                                }
+                                                </div>
+                                            
                                         </div>
-                                    </div>
-                                </div>
+                                    </div>`
+                                    : ''
+                                }
                             </div>
                         </div>
 
@@ -148,6 +122,7 @@ function getHtmlPost(post_data) {
 
 function getHtmlImagePost(post_data) {
     return `
+            ${post_data.editable ? 'editable' : 'NOT editable'}
              <div class="card gedf-card main-post-div" id="${post_data.id}">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
@@ -160,18 +135,28 @@ function getHtmlImagePost(post_data) {
                                     <div class="h7 text-muted" id="${post_data.user_id}">@${post_data.username}</div>
                                     </div>
                                 </div>
-                                <div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa fa-ellipsis-h"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                            <a class="dropdown-item" href="#"><i class="fa fa-edit mr-2"></i>Edit</a>
-                                            <a class="dropdown-item btn-outline-danger" href="#"><i class="fa fa-trash mr-2"></i>Delete</a>
+                                ${post_data.editable || post_data.removable ?
+                                    `<div>
+                                        <div class="dropdown">
+                                            <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fa fa-ellipsis-h"></i>
+                                            </button>
+                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
+                                                ${post_data.editable ?
+                                                    `<a class="dropdown-item" href="#"><i class="fa fa-edit mr-2"></i>Edit</a>`
+                                                    : ''
+                                                }
+                                                ${ post_data.removable ?
+                                                    `<a class="dropdown-item btn-outline-danger" href="#"><i class="fa fa-trash mr-2"></i>Delete</a>`
+                                                    : ''
+                                                }
+                                                </div>
+                                            
                                         </div>
-                                    </div>
-                                </div>
+                                    </div>`
+                                    : ''
+                                }
                             </div>
                         </div>
 

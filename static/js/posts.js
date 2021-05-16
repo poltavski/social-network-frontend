@@ -1,6 +1,9 @@
 $( document ).ready(function() {
-    getFeed()
+    getFeed();
+    // Update token every 25 minutes.
+    let intervalId = setInterval(refreshToken, 25*60*1000);
 });
+
 
 // const backendBaseURL = "http://127.0.0.1:8000";
 //
@@ -25,6 +28,23 @@ async function postDataImage(url, headers = new Headers(), bodyData = new FormDa
     return await fetch(url, requestOptions)
 }
 
+function addPostRequest(myHeaders, postFormData) {
+    postDataImage(backendBaseURL + "/post/create-post", myHeaders, JSON.stringify(postFormData))
+                    .then(response => {
+                        if (response.status === 200)
+                            response.json()
+                                .then(post => {
+                                let posts_layout = $('.posts-layout')
+                                console.log(posts_layout)
+                                post.image_id
+                                    ? posts_layout.prepend(getHtmlImagePost(post))
+                                    : posts_layout.prepend(getHtmlPost(post))
+                            })
+                    })
+                .catch(error => console.log('error', error));
+}
+
+
 function addPost(){
     const parentDiv = $('.tab-content');
     const activeDiv = parentDiv.children('.active');
@@ -34,37 +54,69 @@ function addPost(){
     let myHeaders = new Headers();
     myHeaders.append("X-CSRF-TOKEN", getCookie("csrf_access_token"));
 
-    let formData = new FormData();
-    formData.append("image", image.get(0).files[0]);
+    let postFormData = {
+        "content": text.val(),
+        "visibility": $('.visibility-list').attr('id'),
+    };
 
+    if (image.get(0) && image.get(0).files[0]) {
+        console.log('image');
+        let formData = new FormData();
+        formData.append("image", image.get(0).files[0]);
 
-    postDataImage("http://127.0.0.1:8000/post/upload-image", myHeaders, formData)
-        .then(response => response.json())
-        .then(imageID => {
-            console.log(imageID);
-            formData = {
-                "content": text.val(),
-                "visibility": "public",
-                "image_id": imageID,
-            };
-            postDataImage("http://127.0.0.1:8000/post/create-post", myHeaders, JSON.stringify(formData))
-                .then(response => response.json())
-                .then(post => {
-                    let posts_layout = $('.posts-layout')
-                    console.log(posts_layout)
-                    post.image_id
-                        ? posts_layout.prepend(getHtmlImagePost(post))
-                        : posts_layout.prepend(getHtmlPost(post))
-                })
+        postDataImage(backendBaseURL + "/post/upload-image", myHeaders, formData)
+            .then(response => response.json())
+            .then(imageID => {
+                console.log(imageID);
+                postFormData.image_id = imageID;
+                addPostRequest(myHeaders, postFormData)
+            })
+            .catch(error => console.log('error', error));
+    }
+    else {
+        addPostRequest(myHeaders, postFormData)
+    }
+    // postDataImage(backendBaseURL + "/post/create-post", myHeaders, JSON.stringify(postFormData))
+    //                 .then(response => {
+    //                     if (response.status === 200)
+    //                         response.json()
+    //                             .then(post => {
+    //                             let posts_layout = $('.posts-layout')
+    //                             console.log(posts_layout)
+    //                             post.image_id
+    //                                 ? posts_layout.prepend(getHtmlImagePost(post))
+    //                                 : posts_layout.prepend(getHtmlPost(post))
+    //                         })
+    //                 })
+    //             .catch(error => console.log('error', error));
+}
+
+function deletePost(delElem) {
+    const mainPostDiv =$(delElem).closest('.main-post-div');
+    console.log(mainPostDiv)
+    const url = backendBaseURL + '/post/delete-post?post_id=' + mainPostDiv.attr('id')
+    fetch(url, {
+        method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
+        credentials: 'include', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': getCookie("csrf_access_token")
+        },
+    }).then(response => {
+        if (response.status === 200)
+            mainPostDiv.remove()
+        else if (response.status === 422)
+            refreshToken()
+                .then((data) => {
+                    if (data.status === 200)
+                        deletePost(delElem);
         })
-        .catch(error => console.log('error', error));
+    }).catch()
 }
 //
 // post is result of response
 function getHtmlPost(post_data) {
     return `
-            ${post_data.editable ? 'editable' : 'NOT editable'}
-
              <div class="card gedf-card main-post-div" id="${post_data.id}">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
@@ -90,7 +142,7 @@ function getHtmlPost(post_data) {
                                                     : ''
                                                 }
                                                 ${ post_data.removable ?
-                                                    `<a class="dropdown-item btn-outline-danger" href="#"><i class="fa fa-trash mr-2"></i>Delete</a>`
+                                                    `<a class="dropdown-item btn-outline-danger" onclick="deletePost(this)"><i class="fa fa-trash mr-2"></i>Delete</a>`
                                                     : ''
                                                 }
                                                 </div>
@@ -104,7 +156,9 @@ function getHtmlPost(post_data) {
 
                         <div class="card-body">
                             <div class="text-muted h7 mb-2">
-                                <a class="card-link" href="#"><i class="fa fa-clock-o"></i> ${post_data.time_from_now}</a>
+                                <a class="card-link" href="#">
+                                <i class="fa fa-clock-o"></i> ${post_data.time_from_now}${post_data.edited ? ' (edited)' : ''}
+                                </a>
                             </div>
                             <p class="card-text">
                                ${post_data.content}
@@ -122,7 +176,6 @@ function getHtmlPost(post_data) {
 
 function getHtmlImagePost(post_data) {
     return `
-            ${post_data.editable ? 'editable' : 'NOT editable'}
              <div class="card gedf-card main-post-div" id="${post_data.id}">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
@@ -148,7 +201,7 @@ function getHtmlImagePost(post_data) {
                                                     : ''
                                                 }
                                                 ${ post_data.removable ?
-                                                    `<a class="dropdown-item btn-outline-danger" href="#"><i class="fa fa-trash mr-2"></i>Delete</a>`
+                                                    `<a class="dropdown-item btn-outline-danger" onclick="deletePost(this)"><i class="fa fa-trash mr-2"></i>Delete</a>`
                                                     : ''
                                                 }
                                                 </div>
@@ -162,7 +215,9 @@ function getHtmlImagePost(post_data) {
 
                         <div class="card-body">
                             <div class="text-muted h7 mb-2">
-                                <a class="card-link" href="#"><i class="fa fa-clock-o"></i> ${post_data.time_from_now}</a>
+                                <a class="card-link" href="#">
+                                <i class="fa fa-clock-o"></i> ${post_data.time_from_now}${post_data.edited ? ' (edited)' : ''}
+                                </a>
                             </div>
                             <img class="rounded float-left mr-3 post-image" src="http://127.0.0.1:8000/post/get-image?image_id=${post_data.image_id}"/>
                             <p class="card-text">
@@ -212,4 +267,17 @@ function changeLike(likeElem) {
             $(likeElem).html('<i class="fa fa-star"></i> ' + numOfLikes + ' Like');
         })
     })
+}
+
+function changeVisibilityId(newId, iconClass) {
+    console.log(newId, iconClass)
+    if (['public', 'friends', 'personal'].includes(newId)) {
+        $('.visibility-list').attr("id", newId);
+
+        let visibilityIcon = $('.visibility-icon');
+        visibilityIcon.removeClass('fa-globe');
+        visibilityIcon.removeClass('fa-users');
+        visibilityIcon.removeClass('fa-user');
+        visibilityIcon.addClass(iconClass);
+    }
 }

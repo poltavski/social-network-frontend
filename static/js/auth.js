@@ -2,6 +2,28 @@ const backendBaseURL = "http://127.0.0.1:8000"
 const frontendBaseURL = "http://127.0.0.1:8050"
 
 
+async function refreshToken() {
+    console.log('Try refresh');
+    let myHeaders = new Headers();
+    myHeaders.append("X-CSRF-TOKEN", getCookie("csrf_refresh_token"));
+    for (let head of myHeaders.entries())
+        console.log(head);
+    const resp = await fetch(backendBaseURL+'/refresh', {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        credentials: 'include', // include, *same-origin, omit
+        headers: myHeaders,
+    })
+        .then((data) => {
+            console.log('Token is refreshed')
+            if (data.status !== 200)
+                logout()
+        })
+        .catch((e) => console.log(e));
+    console.log(resp)
+    return resp
+}
+
 function getCookie(name) {
           let matches = document.cookie.match(new RegExp(
             "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
@@ -99,21 +121,23 @@ function logInForm() {
 }
 
 async function logout() {
-    const response = await fetch(backendBaseURL + "/logout", {
+    fetch(backendBaseURL + "/logout", {
         method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
         credentials: 'include', // include, *same-origin, omit
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': getCookie("csrf_access_token")
         },
-    });
-    if (response.status === 200)
-        window.location.reload(false)
-    else if (response.status === 422)
-        postData(backendBaseURL+"/refresh", {})
-        .then((data) => {
-            if (data.status === 200)
-                logout()
+    }).then(response => {
+        if (response.status === 200)
+            window.location.reload(false)
+        else if (response.status === 422)
+            refreshToken().then((data) => {
+                if (data.status === 200)
+                    logout()
         })
         .catch((e) => console.log(e));
+    })
+    .catch((e) => console.log(e));
+
 }

@@ -251,7 +251,7 @@ function getFeed() {
                             })
                         }
                         else {
-                            $('.posts-layout').append('NO POSTS!!!')
+                            $('.posts-layout').append('Create your first post!')
                         }
                     })
             }

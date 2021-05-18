@@ -28,7 +28,7 @@
         <a href="#" class="navbar-brand">Quitter</a>
         <form class="form-inline">
             <div class="input-group">
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" id="search-user">
                 <div class="input-group-append">
                     <button class="btn btn-outline-primary" type="button" id="button-search">
                         <i class="fa fa-search"></i>
@@ -41,7 +41,16 @@
         </form>
     </nav>
 
-    <div class="container-fluid gedf-wrapper">
+    <div style="width:14%; position: absolute; left:43%; right: 43%; z-index: 99;">
+        <div class="list-group search-layout">
+        </div>
+    </div>
+
+    <div class="modal-layout">
+
+    </div>
+
+    <div style="z-index: -1; position: absolute;" class="container-fluid gedf-wrapper">
         <div class="row">
             <div class="col-md-3">
                 {{ macroUserComponents.displayUser(user_data) }}
@@ -215,6 +224,7 @@
     </div>
     <script src="../static/js/auth.js"></script>
     <script src="../static/js/posts.js"></script>
+    <script src="../static/main.js"></script>
 </body>
 
 </html>

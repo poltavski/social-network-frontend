@@ -66,6 +66,9 @@ function getHtmlSearchProfile(user_data){
 
 $(document).ready(function() {
     // Search bar logic
+    // split for myHeaders1/2 is temp
+    // error was that request with same united myHeaders don't work too
+    // so I split them in separate ones. This doesn't work too
     let myHeaders1 = new Headers();
     let myHeaders2 = new Headers();
     myHeaders1.append("X-CSRF-TOKEN", getCookie("csrf_access_token"));
@@ -104,7 +107,7 @@ $(document).ready(function() {
                 if (data.status === 200) {
                     data.json()
                         .then((user_data) => {
-                            console.log(user_data)
+                            // console.log(user_data)
                             let modal_results = ""
                             let modal_layout = $('.modal-layout')
                             if (Object.keys(user_data).length > 0){
@@ -133,7 +136,7 @@ $(document).ready(function() {
             const url = backendBaseURL + '/follower/set-follower?username=' + username
             postDataImage(url, myHeaders1)
                 .then((data) => {
-                    console.log(data.status)
+                    // console.log(data.status)
                     if (data.status === 200) {
                         $("#followers_num").html(followers + 1)
                          $(this).text('Followed');
@@ -144,7 +147,7 @@ $(document).ready(function() {
             const url = backendBaseURL + '/follower/delete-follower?username=' + username
             postDataImage(url, myHeaders2)
                 .then((data) => {
-                    console.log(data.status)
+                    // console.log(data.status)
                     if (data.status === 200) {
                         $("#followers_num").html(followers - 1)
                         $(this).text('Follow');

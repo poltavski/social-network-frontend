@@ -1,3 +1,22 @@
+function getCookie(name) {
+          let matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+          ));
+          return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+async function postDataImage(url, headers = new Headers(), bodyData = new FormData()) {
+    let requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: bodyData,
+        redirect: 'follow',
+        credentials: 'include',
+    };
+
+    return await fetch(url, requestOptions)
+}
+
 function getHtmlSearchResult(user_id, user_info) {
     return `
         <button class="list-group-item list-group-item-action" id="${user_id}">
@@ -19,24 +38,18 @@ function getHtmlSearchProfile(user_data){
           </div>
           <div class="modal-body card">
             <div class="card-body">
-<!--                {% if user_data.profile_image is not none %}-->
-<!--                    {% set profile_image = user_data.profile_image %}-->
-<!--                {% else %}-->
-<!--                    {% set profile_image = "" %}-->
-<!--                {% endif %}-->
-<!--${user_data.profile_image}-->
-                <div class="image mb-2"><img class="rounded-circle" width="150" src="http://127.0.0.1:8000/post/get-image?image_id=&is_profile=true" alt=""></div>
+                <div class="image mb-2"><img class="rounded-circle" width="150" src="http://127.0.0.1:8000/post/get-image?image_id=${user_data.profile_image ? user_data.profile_image : ''}&is_profile=true" alt=""></div>
                 <div class="h5">${user_data.first_name} ${user_data.last_name}</div>
                 <div>
                     <span class="h7 text-muted">@${user_data.username }</span>
-                    <button class="btn btn-primary btn-sm ml-3" type="button">Follow</button>
+                    <button class="btn btn-primary btn-sm ml-3 follow-button" id="${user_data.username }" type="button">Follow</button>
                 </div>
                 <div class="h7">${user_data.description}</div>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     <div class="h6 text-muted">Followers</div>
-                    <div class="h5">${user_data.num_of_followers}</div>
+                    <div class="h5" id="followers_num">${user_data.num_of_followers}</div>
                 </li>
                 <li class="list-group-item">
                     <div class="h6 text-muted">Following</div>
@@ -50,7 +63,14 @@ function getHtmlSearchProfile(user_data){
     `
 }
 
-$("#search-user" ).keydown(function() {
+
+$(document).ready(function() {
+    // Search bar logic
+    let myHeaders1 = new Headers();
+    let myHeaders2 = new Headers();
+    myHeaders1.append("X-CSRF-TOKEN", getCookie("csrf_access_token"));
+    myHeaders2.append("X-CSRF-TOKEN", getCookie("csrf_access_token"));
+    $("#search-user" ).keydown(function() {
     // console.log( this.value );
     const url = backendBaseURL + '/user/search-user?user_info=' + this.value
     getData(url)
@@ -72,27 +92,26 @@ $("#search-user" ).keydown(function() {
             }
         })
         .catch((e) => console.log(e));
-});
+    });
 
-$(document).ready(function() {
+    // Modal with user info and follow button
     $('.search-layout').on('click', '.list-group-item', function(e) {
         let user_id = $(this).attr('id')
-        console.log(user_id)
-
+        // console.log(user_id)
         const url = backendBaseURL + '/user/user-info-id?id=' + user_id
         getData(url)
             .then((data) => {
                 if (data.status === 200) {
                     data.json()
                         .then((user_data) => {
-                            // console.log(user_data)
+                            console.log(user_data)
                             let modal_results = ""
                             let modal_layout = $('.modal-layout')
                             if (Object.keys(user_data).length > 0){
                                 modal_results+=(getHtmlSearchProfile(user_data))
                                 // console.log(search_results)
                             }
-                            console.log(modal_results)
+                            // console.log(modal_results)
                             modal_layout.html(modal_results);
                             $('#profileModal').modal('show');
                         })
@@ -103,8 +122,35 @@ $(document).ready(function() {
 
     });
 
-
-    // add modal with user info and follow button
-//     2 more modals with other shit holes
+    // follow button action
+    $('.modal-layout').on('click', '.follow-button', function(e){
+        // myHeaders.append("X-CSRF-TOKEN", getCookie("csrf_access_token"));
+        let username = $(this).attr('id')
+        let followers = parseInt($("#followers_num").text(),10);
+        if($(this).hasClass('btn-primary')){
+            $(this).toggleClass('btn-outline-danger');
+            $(this).toggleClass('btn-primary');
+            const url = backendBaseURL + '/follower/set-follower?username=' + username
+            postDataImage(url, myHeaders1)
+                .then((data) => {
+                    console.log(data.status)
+                    if (data.status === 200) {
+                        $("#followers_num").html(followers + 1)
+                         $(this).text('Followed');
+                    }})
+        } else {
+            $(this).toggleClass('btn-outline-danger');
+            $(this).toggleClass('btn-primary');
+            const url = backendBaseURL + '/follower/delete-follower?username=' + username
+            postDataImage(url, myHeaders2)
+                .then((data) => {
+                    console.log(data.status)
+                    if (data.status === 200) {
+                        $("#followers_num").html(followers - 1)
+                        $(this).text('Follow');
+                    }
+                })
+        }
+    });
 });
 

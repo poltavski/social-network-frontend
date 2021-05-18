@@ -77,6 +77,7 @@ async function postData(url = '', data = {}) {
     }); // parses JSON response into native JavaScript objects
 }
 
+
 function signUpForm() {
     console.log(validateSignUpForm())
     if (!validateSignUpForm())

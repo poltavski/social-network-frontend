@@ -1,13 +1,35 @@
 const backendBaseURL = "http://127.0.0.1:8000"
 const frontendBaseURL = "http://127.0.0.1:8050"
 
-$(document).ready(function () {
-    alert("Ready")
-    $('#loginModal').modal('show');
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
+
+async function refreshToken() {
+    console.log('Try refresh');
+    let myHeaders = new Headers();
+    myHeaders.append("X-CSRF-TOKEN", getCookie("csrf_refresh_token"));
+    for (let head of myHeaders.entries())
+        console.log(head);
+    const resp = await fetch(backendBaseURL+'/refresh', {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        credentials: 'include', // include, *same-origin, omit
+        headers: myHeaders,
     })
-});
+        .then((data) => {
+            console.log('Token is refreshed')
+            if (data.status !== 200)
+                logout()
+        })
+        .catch((e) => console.log(e));
+    console.log(resp)
+    return resp
+}
+
+function getCookie(name) {
+          let matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+          ));
+          return matches ? decodeURIComponent(matches[1]) : undefined;
+}
 
 function validateEmail(email) {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -26,11 +48,14 @@ function validateSignUpForm() {
         return true;
     }
 
-    const username = $("input[name=username]")
-    const email = $("input[name=email]");
-    const last_name = $("input[name=last_name]");
-    const password = $("input[name=password]");
-
+    const username = $("input[id=username-up]")
+    const email = $("input[id=email-up]");
+    const last_name = $("input[id=surname-up]");
+    const password = $("input[id=password-up]");
+    console.log(username)
+    console.log(email)
+    console.log(last_name)
+    console.log(password)
     return (
         isCorrectField(username, username.val().length > 0)
         && isCorrectField(email, validateEmail(email.val()))
@@ -41,27 +66,17 @@ function validateSignUpForm() {
 
 async function postData(url = '', data = {}) {
     // Default options are marked with *
-    console.log(data);
-    console.log(url);
-
-    const response = await fetch(url, {
+    return await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
-        // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
+        credentials: 'include', // include, *same-origin, omit
         headers: {
             'Content-Type': 'application/json',
-            // 'access-control-expose-headers': 'Set-Cookie'
-            // 'Content-Type': 'application/x-www-form-urlencoded',
         },
-        // redirect: 'follow', // manual, *follow, error
-        // referrerPolicy: 'unsafe-url', // no-referrer, *client
         body: JSON.stringify(data) // body data type must match "Content-Type" header
-    });
-    console.log(response.status);
-    console.log(response);
-    return await response.json(); // parses JSON response into native JavaScript objects
+    }); // parses JSON response into native JavaScript objects
 }
+
 
 function signUpForm() {
     console.log(validateSignUpForm())
@@ -69,12 +84,12 @@ function signUpForm() {
         return null
 
     const signUpBody = {
-        "username":$("input[name=username]").val(),
-        "email":$("input[name=email]").val(),
-        "first_name":$("input[name=first_name]").val(),
-        "last_name": $("input[name=last_name]").val(),
-        "description": $("input[name=description]").val(),
-        "password": $("input[name=password]").val(),
+        "username":$("input[id=username-up]").val(),
+        "email":$("input[id=email-up]").val(),
+        "first_name":$("input[id=name-up]").val(),
+        "last_name": $("input[id=surname-up]").val(),
+        "description": $("input[id=description-up]").val(),
+        "password": $("input[id=password-up]").val(),
     };
 
     console.log(signUpBody);
@@ -83,62 +98,47 @@ function signUpForm() {
     postData(url, signUpBody)
         .then((data) => {
             console.log("Got data", data); // JSON data parsed by `response.json()` call
+            if (data.status === 200)
+                window.location.reload(false)
         })
         .catch((e) => console.log(e));
 }
 
-function getCookie(name) {
-          let matches = document.cookie.match(new RegExp(
-            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-          ));
-          return matches ? decodeURIComponent(matches[1]) : undefined;
-}
-
 function logInForm() {
-    alert("Login")
     const logInBody = {
         "username":$("input[name=username]").val(),
         "password": $("input[name=password]").val(),
     };
     console.log(logInBody);
     const url = backendBaseURL + "/login";
-    const response_1 = fetch( frontendBaseURL+"/cookie-and-object", {
-                method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'Content-Type': 'application/json',
-            // 'access-control-expose-headers': 'Set-Cookie'
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        // redirect: 'follow', // manual, *follow, error
-        // referrerPolicy: 'unsafe-url', // no-referrer, *client
-            });
-    console.log(response_1)
 
     postData(url, logInBody)
         .then((data) => {
-            // alert(getCookie("csrf_refresh_token"))
-            console.log("Got data", data); // JSON data parsed by `response.json()` call
-            // const response_1 = fetch(backendBaseURL + "/refresh", {
-            //     method: 'Post', // *GET, POST, PUT, DELETE, etc.
-            //     credentials: 'include', // include, *same-origin, omit
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'X-CSRF-TOKEN': getCookie("csrf_refresh_token")
-            //     },
-            // });
-            // console.log(response_1);
-            //
-            // const response_2 = fetch(backendBaseURL + "/protected", {
-            //     method: 'GET',
-            //     credentials: 'include',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            // });
-            // console.log(response_2);
+            if (data.status === 200)
+                window.location.reload(false)
+            console.log("Log In data", data); // JSON data parsed by `response.json()` call
         })
         .catch((e) => console.log(e));
+}
+
+async function logout() {
+    fetch(backendBaseURL + "/logout", {
+        method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
+        credentials: 'include', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': getCookie("csrf_access_token")
+        },
+    }).then(response => {
+        if (response.status === 200)
+            window.location.reload(false)
+        else if (response.status === 422)
+            refreshToken().then((data) => {
+                if (data.status === 200)
+                    logout()
+        })
+        .catch((e) => console.log(e));
+    })
+    .catch((e) => console.log(e));
+
 }

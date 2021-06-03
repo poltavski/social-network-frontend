@@ -3,7 +3,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from utils import get_page_data, process_initial
-import components
 import uvicorn
 
 app = FastAPI()
@@ -12,7 +11,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request, response: Response):
+async def home(request: Request):
     # Expect requests with cookies
     return process_initial(request)
 
@@ -21,18 +20,6 @@ async def home(request: Request, response: Response):
 async def home(request: Request):
     # Expect requests with cookies
     return get_page_data(request)
-
-
-# @app.get("/{page_name}", response_class=HTMLResponse)
-# async def page(request: Request, page_name: str):
-#     return templates.TemplateResponse(
-#         f"{page_name}",
-#         {
-#             "request": request,
-#             "service_parts": components.SERVICES_CARDS,
-#             "services_widget": components.SERVICES_WIDGET,
-#         },
-#     )
 
 
 if __name__ == "__main__":
